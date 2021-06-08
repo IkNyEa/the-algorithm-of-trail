@@ -9,4 +9,4 @@
 
 - 导向连接
 
-https://github.com/IkNyEa/the-algorithm-of-trail/main/direction.html
+https://github.com/IkNyEa/the-algorithm-of-trail
