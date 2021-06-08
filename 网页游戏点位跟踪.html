@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta charset="UTF-8">
+    <title>追踪算法</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        div {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin: -300px 0 0 -300px;
+        }
+        
+        #btn {
+            position: absolute;
+            left: 50%;
+            bottom: 10%;
+            margin-left: -61px;
+            font-size: large;
+            font-family: Arial, Helvetica, sans-serif;
+            color: rgb(138, 43, 30);
+            border-radius: 10px;
+            border: 1px solid rgb(68, 2, 2);
+            cursor: pointer;
+            background-color: rgb(246, 198, 202);
+        }
+        
+        #btn:hover {
+            background-color: rgb(255, 255, 255);
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <canvas id="platform"></canvas>
+    </div>
+
+    <button id="btn">点击开始跟踪</button>
+
+</body>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script>
+    $().ready(function() {
+        var canv = $("#platform");
+        var platform = canv[0];
+        painting = platform.getContext('2d');
+        platform.width = 600;
+        platform.height = 600;
+        tracker = []; //创建线性表，由于存放跟踪对象和目标对象
+        ///创建目标对象
+        var origin = {
+            x: platform.width - 10,
+            y: 10,
+            r: 10,
+            c: "red"
+        };
+        tracker.push(origin);
+        ///创建跟踪对象
+        var trace = {
+            x: Math.ceil(Math.random() * (platform.width - 20) + 10),
+            y: Math.ceil(Math.random() * (platform.height - 20) + 10),
+            r: 10,
+            c: "white"
+        };
+        tracker.push(trace);
+
+        function createOrigin(x, y, r, c) {
+            painting.beginPath();
+            painting.fillStyle = c;
+            painting.arc(x, y, r, 0, Math.PI * 2);
+            painting.fill();
+        }
+        var jqObj = $(platform);
+        jqObj.click(function(event) {
+            var x = event.clientX - platform.getBoundingClientRect().left;
+            var y = event.clientY - platform.getBoundingClientRect().top;
+            tracker[0].x = x;
+            tracker[0].y = y;
+        });
+
+        (function initiate() {
+            painting.fillStyle = "rgb(190, 190, 190)";
+            painting.rect(0, 0, 600, 600);
+            painting.fill();
+            for (var i = 0; i < tracker.length; i++) {
+                createOrigin(tracker[i].x, tracker[i].y, tracker[i].r, tracker[i].c);
+            }
+        })()
+        $("#btn").click(redraw);
+
+        function redraw() {
+            painting.fillStyle = "rgb(197, 197, 197)";
+            painting.rect(0, 0, 600, 600);
+            painting.fill();
+            createOrigin(tracker[0].x, tracker[0].y, tracker[0].r, tracker[0].c);
+            //目标点跟踪算法
+            for (var i = 1; i < tracker.length; i++) {
+                var sitex = tracker[i].x - tracker[0].x,
+                    sitey = tracker[i].y - tracker[0].y,
+                    //算出斜边的长度
+                    hypotenuse = Math.sqrt(sitex * sitex + sitey * sitey),
+                    //分别求出x方向的分量和y方向的分量
+                    dx = sitex / hypotenuse,
+                    dy = sitey / hypotenuse;
+                //每次重绘跟踪点在x和y方向上移动的距离    
+                tracker[i].x -= 1.5 * dx;
+                tracker[i].y -= 1.5 * dy;
+                //定位每次移动后的跟踪点的坐标（更新跟踪点和目标点）
+                createOrigin(tracker[i].x, tracker[i].y, tracker[i].r, tracker[i].c);
+            }
+            //重绘画布
+            requestAnimationFrame(redraw);
+        }
+    })
+</script>
+
+</html>
